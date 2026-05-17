@@ -1,0 +1,1552 @@
+/* =============================================================
+   JUJUTSU KAISEN — The Strongest
+   styles.css
+   ============================================================= */
+
+
+/* ── SF PRO FONTS — local embed (fonts/ folder) ─────────────── */
+
+@font-face {
+    font-family: "SF Pro Custom";
+    src: url("fonts/SF-Pro-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "SF Pro Custom";
+    src: url("fonts/SF-Pro-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "SF Pro Custom";
+    src: url("fonts/SF-Pro-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* ── RESET & VARIABLES ──────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --black: #050505;
+    --off-black: #0a0a0a;
+    --gojo-blue: #4DA6FF;
+    --sukuna-red: #FF3B3B;
+    --white: #f5f5f7;
+    --white-dim: rgba(245, 245, 247, 0.55);
+    --white-faint: rgba(245, 245, 247, 0.10);
+    --serif: "SF Pro Custom", Georgia, serif;
+    /* display headings — italic applied via CSS */
+    --sans: "SF Pro Custom", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Pro Custom", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--black);
+    color: var(--white);
+    font-family: "SF Pro Custom", Arial, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ── NOISE OVERLAY ──────────────────────────────────────────── */
+
+.noise {
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 9997;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+}
+
+
+/* ── NAV ────────────────────────────────────────────────────── */
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 60px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(5, 5, 5, 0.5);
+    border-bottom: 1px solid var(--white-faint);
+    transition: background 0.4s;
+}
+
+.nav-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    opacity: 0.9;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+}
+
+.nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--white-dim);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--white);
+}
+
+
+/* ── HERO ───────────────────────────────────────────────────── */
+
+
+/*
+  Z-INDEX LAYERS:
+    1 → .hero-scene    — Unicorn canvas (animation)
+    2 → .hero-vignette — radial edge fade to black
+    3 → .hero-text     — copy, always on top
+*/
+
+#hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    background: #050505;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Isolate stacking context so z-index layers work correctly */
+    isolation: isolate;
+}
+
+
+/* Layer 1 — Unicorn Studio canvas fills the hero completely */
+
+.hero-scene {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* initHeroScale() in main.js drives scale; native 1440×900 project */
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    width: 1440px;
+    height: 900px;
+    /* Ensure no white background leaks through */
+    background: transparent;
+}
+
+
+/* Force Unicorn container & canvas to fill the wrapper exactly */
+
+.hero-scene>div,
+.hero-scene [data-us-project],
+.hero-scene canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    background: transparent !important;
+}
+
+
+/* screen blend — light particles glow on dark; no white flash */
+
+.hero-scene canvas {
+    mix-blend-mode: screen;
+}
+
+
+/* Extra safety: kill any injected white bg from Unicorn's iframe/wrapper */
+
+.hero-scene iframe,
+.hero-scene>div>div {
+    background: transparent !important;
+}
+
+
+/* Layer 2 — vignette blends animation edges into black */
+
+.hero-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient( ellipse 80% 75% at 50% 50%, transparent 25%, rgba(5, 5, 5, 0.55) 65%, #050505 100%);
+}
+
+
+/* Layer 3 — text sits above everything */
+
+
+/*
+  DESIGN INTENT: Apple × JJK
+  — Text sits in the bottom-left corner, small and confident
+  — Never competes with the animation behind it
+  — Eyebrow label + compact italic name + mono subline
+*/
+
+.hero-text {
+    position: absolute;
+    bottom: 80px;
+    left: 64px;
+    z-index: 3;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    opacity: 0;
+    animation: fadeUp 1.2s 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* "Jujutsu Kaisen" — tiny mono tag above the name */
+
+.hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 4px;
+}
+
+
+/* Main title — compact serif, two lines max */
+
+.hero-title {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.2vw, 48px);
+    font-weight: 300;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: var(--white);
+}
+
+.hero-title .blue {
+    color: var(--gojo-blue);
+    font-style: italic;
+}
+
+.hero-title .red {
+    color: var(--sukuna-red);
+    font-style: italic;
+}
+
+
+/* "vs" — inline hairline separator */
+
+.hero-title .vs {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--white-dim);
+    vertical-align: middle;
+    margin: 0 8px;
+    font-style: normal;
+}
+
+
+/* Tagline below the name */
+
+.hero-subtext {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    padding-top: 10px;
+    border-top: 1px solid var(--white-faint);
+    width: 100%;
+}
+
+
+/* Scroll cue */
+
+.hero-scroll {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeIn 1s 2.2s forwards;
+}
+
+.scroll-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+}
+
+.scroll-line {
+    width: 1px;
+    height: 56px;
+    background: linear-gradient(to bottom, transparent, var(--white-dim));
+    animation: scrollDrop 2s ease-in-out infinite;
+}
+
+
+/* ── SECTION A — BUILD-UP ───────────────────────────────────── */
+
+#intro {
+    padding: 140px 40px;
+    text-align: center;
+}
+
+#intro .inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.chapter-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+}
+
+.chapter-headline {
+    font-family: var(--serif);
+    font-size: clamp(38px, 5.5vw, 70px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--white);
+}
+
+.chapter-body {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--white-dim);
+    max-width: 560px;
+}
+
+
+/* ── FEATURE SECTIONS — B & C ───────────────────────────────── */
+
+.feature-wrap {
+    padding: 80px 0 120px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 80px;
+}
+
+.feature-grid.reverse {
+    direction: rtl;
+}
+
+.feature-grid.reverse>* {
+    direction: ltr;
+}
+
+.feature-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #050505;
+    position: relative;
+    transition: box-shadow 0.5s;
+    /* Let motion-video determine width naturally */
+    flex-shrink: 0;
+}
+
+.video-wrap .motion-video,
+.video-wrap video {
+    width: 320px;
+    max-width: 400px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    border-radius: 12px;
+    opacity: 0.95;
+}
+
+
+/* Domain clash section: slightly wider videos */
+
+#clash-section .video-wrap .motion-video,
+#clash-section .video-wrap video {
+    width: 340px;
+}
+
+.video-wrap.sukuna-video:hover {
+    box-shadow: 0 0 60px rgba(255, 59, 59, 0.25), 0 0 120px rgba(255, 59, 59, 0.08);
+}
+
+.video-wrap.gojo-video:hover {
+    box-shadow: 0 0 60px rgba(77, 166, 255, 0.25), 0 0 120px rgba(77, 166, 255, 0.08);
+}
+
+.feature-text {
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+}
+
+.feat-label.blue {
+    color: var(--gojo-blue);
+}
+
+.feat-label.red {
+    color: var(--sukuna-red);
+}
+
+.feat-headline {
+    font-family: var(--serif);
+    font-size: clamp(42px, 5vw, 70px);
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--white);
+}
+
+.feat-headline em {
+    font-style: italic;
+}
+
+.feat-body {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--white-dim);
+    max-width: 400px;
+}
+
+.feat-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.feat-bullets li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+}
+
+.feat-bullets li::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    flex-shrink: 0;
+}
+
+.bullets-blue li::before {
+    background: var(--gojo-blue);
+}
+
+.bullets-red li::before {
+    background: var(--sukuna-red);
+}
+
+.feat-stat {
+    margin-top: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--white-faint);
+    display: flex;
+    gap: 48px;
+}
+
+.stat-number {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.stat-number.blue {
+    color: var(--gojo-blue);
+}
+
+.stat-number.red {
+    color: var(--sukuna-red);
+}
+
+.stat-desc {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+
+/* ── DIVIDER ────────────────────────────────────────────────── */
+
+.clash-divider {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    padding: 80px 40px;
+    text-align: center;
+    position: relative;
+}
+
+.clash-divider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(77, 166, 255, 0.04) 0%, transparent 40%, transparent 60%, rgba(255, 59, 59, 0.04) 100%);
+    pointer-events: none;
+}
+
+.divider-line {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--white-dim), transparent);
+}
+
+.divider-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+}
+
+.divider-quote {
+    font-family: var(--serif);
+    font-size: clamp(26px, 4vw, 50px);
+    font-weight: 300;
+    line-height: 1.25;
+    max-width: 680px;
+    color: var(--white);
+    font-style: italic;
+}
+
+
+/* ── SECTION D — CLASH ──────────────────────────────────────── */
+
+#clash-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+#clash-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 50% at 25% 50%, rgba(77, 166, 255, 0.06) 0%, transparent 60%), radial-gradient(ellipse 55% 50% at 75% 50%, rgba(255, 59, 59, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.clash-videos {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    margin-bottom: 80px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.clash-vs-pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.clash-vs-pillar .vs-line {
+    width: 1px;
+    height: 56px;
+    background: linear-gradient(to bottom, transparent, var(--white-dim), transparent);
+}
+
+.clash-vs-pillar .vs-word {
+    font-family: var(--serif);
+    font-size: 28px;
+    color: var(--white-dim);
+    font-style: italic;
+}
+
+.clash-headline {
+    font-family: var(--serif);
+    font-size: clamp(44px, 7vw, 92px);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+}
+
+.clash-headline .blue {
+    color: var(--gojo-blue);
+    font-style: italic;
+}
+
+.clash-headline .red {
+    color: var(--sukuna-red);
+}
+
+.clash-headline .mono-vs {
+    display: block;
+    font-family: var(--mono);
+    font-size: clamp(12px, 1.5vw, 18px);
+    letter-spacing: 0.4em;
+    color: var(--white-dim);
+    margin: 18px 0;
+}
+
+.clash-subtext {
+    margin-top: 28px;
+    font-family: var(--serif);
+    font-size: clamp(16px, 2vw, 24px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white-dim);
+    max-width: 480px;
+    line-height: 1.55;
+}
+
+
+/* ── TIMELINE ───────────────────────────────────────────────── */
+
+#timeline {
+    padding: 140px 80px;
+}
+
+.timeline-header {
+    margin-bottom: 80px;
+}
+
+.timeline-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 16px;
+}
+
+.timeline-title {
+    font-family: var(--serif);
+    font-size: clamp(38px, 5vw, 62px);
+    font-weight: 300;
+    color: var(--white);
+}
+
+.timeline-track {
+    position: relative;
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.timeline-spine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient( to bottom, transparent, var(--white-faint) 10%, var(--white-faint) 90%, transparent);
+    transform: translateX(-50%);
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0 48px;
+    margin-bottom: 72px;
+    align-items: center;
+}
+
+.timeline-item:nth-child(odd) .t-content {
+    grid-column: 1;
+    text-align: right;
+}
+
+.timeline-item:nth-child(odd) .t-empty {
+    grid-column: 3;
+}
+
+.timeline-item:nth-child(even) .t-content {
+    grid-column: 3;
+    text-align: left;
+}
+
+.timeline-item:nth-child(even) .t-empty {
+    grid-column: 1;
+}
+
+.t-dot {
+    grid-column: 2;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.t-dot.blue {
+    color: var(--gojo-blue);
+    background: rgba(77, 166, 255, 0.2);
+}
+
+.t-dot.red {
+    color: var(--sukuna-red);
+    background: rgba(255, 59, 59, 0.2);
+}
+
+.t-chapter {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.t-chapter.blue {
+    color: var(--gojo-blue);
+}
+
+.t-chapter.red {
+    color: var(--sukuna-red);
+}
+
+.t-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 6px;
+}
+
+.t-desc {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--white-dim);
+}
+
+
+/* ── SECTION E — ENDING ─────────────────────────────────────── */
+
+#ending {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 40px;
+    text-align: center;
+    gap: 28px;
+}
+
+.ending-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+}
+
+.ending-title {
+    font-family: var(--serif);
+    font-size: clamp(50px, 7vw, 96px);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: -0.02em;
+}
+
+.ending-subtitle {
+    font-family: var(--serif);
+    font-size: clamp(16px, 2vw, 22px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white-dim);
+    max-width: 480px;
+}
+
+.ending-duel {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.duel-card {
+    padding: 22px 44px;
+    border: 1px solid var(--white-faint);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.4s, transform 0.4s;
+}
+
+.duel-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.duel-card.blue-card::before {
+    background: radial-gradient(ellipse 80% 80% at 50% 100%, rgba(77, 166, 255, 0.08) 0%, transparent 70%);
+}
+
+.duel-card.red-card::before {
+    background: radial-gradient(ellipse 80% 80% at 50% 100%, rgba(255, 59, 59, 0.08) 0%, transparent 70%);
+}
+
+.duel-card:hover::before {
+    opacity: 1;
+}
+
+.duel-card:hover {
+    transform: translateY(-3px);
+}
+
+.duel-card.blue-card:hover {
+    border-color: rgba(77, 166, 255, 0.3);
+}
+
+.duel-card.red-card:hover {
+    border-color: rgba(255, 59, 59, 0.3);
+}
+
+.duel-name {
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 300;
+}
+
+.duel-name.blue {
+    color: var(--gojo-blue);
+}
+
+.duel-name.red {
+    color: var(--sukuna-red);
+}
+
+.duel-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+}
+
+.duel-vs {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--white-dim);
+    padding: 0 18px;
+    font-style: italic;
+}
+
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+
+footer {
+    padding: 56px 80px;
+    border-top: 1px solid var(--white-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-brand {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--white-dim);
+}
+
+.footer-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(245, 245, 247, 0.25);
+    text-transform: uppercase;
+}
+
+
+/* ── KEYFRAME ANIMATIONS ────────────────────────────────────── */
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scrollDrop {
+    0%,
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top;
+    }
+    30%,
+    70% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+
+/* ── SCROLL REVEAL CLASSES ──────────────────────────────────── */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(38px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-38px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(38px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible,
+.reveal-scale.visible {
+    opacity: 1;
+    transform: none;
+}
+
+.delay-1 {
+    transition-delay: 0.10s;
+}
+
+.delay-2 {
+    transition-delay: 0.22s;
+}
+
+.delay-3 {
+    transition-delay: 0.34s;
+}
+
+.delay-4 {
+    transition-delay: 0.46s;
+}
+
+
+/* ── ABOUT SECTIONS ─────────────────────────────────────────── */
+
+.about-section {
+    padding: 100px 0 120px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 80px;
+    gap: 80px;
+}
+
+.about-grid.reverse {
+    direction: rtl;
+}
+
+.about-grid.reverse>* {
+    direction: ltr;
+}
+
+.about-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-video {
+    /* sizing inherited from .motion-video */
+    display: inline-flex;
+}
+
+.about-text {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.about-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    display: block;
+}
+
+.about-label.red {
+    color: var(--sukuna-red);
+}
+
+.about-label.blue {
+    color: var(--gojo-blue);
+}
+
+.about-headline {
+    font-family: var(--serif);
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 300;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--white);
+}
+
+.about-body {
+    font-size: 17px;
+    line-height: 1.72;
+    color: var(--white-dim);
+    max-width: 420px;
+    letter-spacing: 0.01em;
+}
+
+
+/* ── VIDEO — DISPLAY AS-IS (pre-edited files) ───────────────── */
+
+
+/*
+  Videos are already edited with green screen removed.
+  No blend mode or colour manipulation applied — just display cleanly.
+*/
+
+.video-wrap {
+    background: #050505;
+}
+
+
+/* motion-video: the spec sizing for all content video elements */
+
+.motion-video {
+    width: 320px;
+    max-width: 400px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    opacity: 0.95;
+    display: block;
+}
+
+
+/* ── TYPOGRAPHY REFINEMENTS (Apple feel) ─────────────────────── */
+
+.feat-label,
+.about-label,
+.chapter-number,
+.timeline-label,
+.ending-eyebrow,
+.hero-eyebrow,
+.hero-subtext,
+.scroll-label,
+.divider-label,
+.stat-desc,
+.t-chapter,
+.footer-note,
+.nav-links a {
+    font-family: var(--mono);
+    letter-spacing: 0.18em;
+}
+
+.feat-headline,
+.about-headline,
+.chapter-headline,
+.clash-headline,
+.ending-title,
+.timeline-title,
+.hero-title,
+.divider-quote {
+    letter-spacing: -0.025em;
+}
+
+.chapter-body,
+.feat-body,
+.about-body,
+.clash-subtext,
+.ending-subtitle,
+.t-desc {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.72;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ── ABOUT SECTION — eyebrow, bullets, stats ────────────────── */
+
+
+/* Eyebrow: smaller mono label above the headline — matches feat-label style */
+
+.about-eyebrow {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.about-eyebrow.red {
+    color: var(--sukuna-red);
+}
+
+.about-eyebrow.blue {
+    color: var(--gojo-blue);
+}
+
+
+/* Bullets: identical structure to .feat-bullets */
+
+.about-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-bullets li {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.about-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 1px;
+}
+
+.bullets-red li::before {
+    background: var(--sukuna-red);
+}
+
+.bullets-blue li::before {
+    background: var(--gojo-blue);
+}
+
+
+/* Stats row — mirrors .feat-stat exactly */
+
+.about-stat {
+    display: flex;
+    gap: 48px;
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-stat .stat-number {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.about-stat .stat-desc {
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-top: 6px;
+    font-family: var(--mono);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   DOMAIN PAGES — full-width sections matching screenshot layout
+   (Malevolent Shrine + Limitless Void)
+══════════════════════════════════════════════════════════════ */
+
+.domain-page {
+    padding: 120px 0 140px;
+    position: relative;
+}
+
+.domain-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 100px;
+    gap: 100px;
+}
+
+.domain-inner.reverse {
+    direction: rtl;
+}
+
+.domain-inner.reverse>* {
+    direction: ltr;
+}
+
+.domain-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.domain-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+
+/* Eyebrow label — mono, tight tracking, coloured */
+
+.domain-eyebrow {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.domain-eyebrow.red {
+    color: var(--sukuna-red);
+}
+
+.domain-eyebrow.blue {
+    color: var(--gojo-blue);
+}
+
+
+/* Big serif headline — matches screenshot scale */
+
+.domain-headline {
+    font-family: var(--serif);
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin: 0 0 28px;
+}
+
+.domain-headline em {
+    font-style: italic;
+    font-weight: 300;
+}
+
+.domain-body {
+    font-size: 17px;
+    line-height: 1.72;
+    color: var(--white-dim);
+    max-width: 460px;
+    margin: 0 0 32px;
+}
+
+
+/* Bullets — same style as feat/about but with coloured dash */
+
+.domain-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.domain-bullets li {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    padding-left: 28px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.domain-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 16px;
+    height: 1px;
+}
+
+.domain-bullets.bullets-red li::before {
+    background: var(--sukuna-red);
+}
+
+.domain-bullets.bullets-blue li::before {
+    background: var(--gojo-blue);
+}
+
+
+/* Stats row */
+
+.domain-stat {
+    display: flex;
+    gap: 52px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.domain-stat .stat-number {
+    font-family: var(--serif);
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.domain-stat .stat-desc {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-top: 8px;
+}
+
+
+/* ── Ending — chapter label above title ─────────────────────── */
+
+.ending-chapter {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 24px;
+}
+
+
+/* ── Timeline title size boost to match screenshot ──────────── */
+
+.timeline-title {
+    font-size: clamp(36px, 5vw, 72px) !important;
+    line-height: 1.1 !important;
+}
+
+
+/* ── Clash headline — "Infinity vs Destruction" style ───────── */
+
+.clash-headline {
+    font-size: clamp(48px, 8vw, 110px) !important;
+}
+
+.clash-headline .mono-vs {
+    font-family: var(--mono);
+    font-size: 0.28em;
+    letter-spacing: 0.3em;
+    color: var(--white-dim);
+    display: block;
+    margin: 12px 0;
+}
+
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .domain-inner,
+    .domain-inner.reverse {
+        grid-template-columns: 1fr;
+        direction: ltr;
+        padding: 0 32px;
+        gap: 48px;
+    }
+    .domain-headline {
+        font-size: clamp(40px, 10vw, 64px);
+    }
+}
+
+
+/* ── RESPONSIVE — about sections ────────────────────────────── */
+
+@media (max-width: 900px) {
+    nav {
+        padding: 20px 24px;
+    }
+    .nav-links {
+        display: none;
+    }
+    .hero-text {
+        left: 24px;
+        bottom: 60px;
+    }
+    .hero-title {
+        font-size: clamp(22px, 6vw, 36px);
+    }
+    .feature-grid {
+        grid-template-columns: 1fr;
+        padding: 0 24px;
+        gap: 48px;
+    }
+    .feature-grid.reverse {
+        direction: ltr;
+    }
+    .feature-text {
+        padding: 0;
+    }
+    .video-wrap {
+        width: 100%;
+        max-width: 340px;
+        margin: 0 auto;
+    }
+    #timeline {
+        padding: 80px 24px;
+    }
+    .timeline-spine {
+        display: none;
+    }
+    .timeline-item {
+        grid-template-columns: auto 1fr;
+        gap: 0 20px;
+    }
+    .timeline-item:nth-child(odd) .t-content,
+    .timeline-item:nth-child(even) .t-content {
+        grid-column: 2;
+        text-align: left;
+    }
+    .t-dot {
+        grid-column: 1;
+    }
+    .t-empty {
+        display: none;
+    }
+    .clash-videos {
+        flex-direction: column;
+        gap: 32px;
+    }
+    .ending-duel {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    footer {
+        flex-direction: column;
+        gap: 14px;
+        text-align: center;
+    }
+}
